@@ -1,0 +1,6 @@
+#ignore gedit automatic backup files
+*~
+
+#ignore build tmp
+tmp/*
+
