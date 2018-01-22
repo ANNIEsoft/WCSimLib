@@ -35,7 +35,7 @@ ROOTOBJS  := $(G4WORKDIR)/tmp/$(G4SYSTEM)/WCSim/WCSimRootEvent.o $(G4WORKDIR)/tm
 
 .PHONY: directories
 
-all: directories libWCSimRoot.so
+all: directories ./src/WCSimRootDict.cc libWCSimRoot.so
 
 directories: $(G4TMPDIR)
 
@@ -60,6 +60,12 @@ libWCSimRoot.so : $(ROOTOBJS)
 rootcint: ./src/WCSimRootDict.cc
 
 $(G4TMPDIR)/%.o: src/%.cc include/%.hh
+	@echo Compiling $*.cc ...
+	@if [ ! -d $(G4TMPDIR) ] ; then mkdir $(G4TMPDIR) ; echo mkdir $(G4TMPDIR) ;fi
+	@echo $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<
+	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<
+
+$(G4TMPDIR)/WCSimRootDict.o: src/WCSimRootDict.cc
 	@echo Compiling $*.cc ...
 	@if [ ! -d $(G4TMPDIR) ] ; then mkdir $(G4TMPDIR) ; echo mkdir $(G4TMPDIR) ;fi
 	@echo $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<
