@@ -8,6 +8,7 @@ ROOTCFLAGS   := $(shell root-config --cflags) -DUSE_ROOT -fPIC
 ROOTLIBS     := $(shell root-config --libs)
 
 CPPFLAGS  += -Wno-deprecated 
+CPPFLAGS  += -fdiagnostics-color=always -Wno-sign-compare
 CPPFLAGS  += -I$(PWD)/include
 CPPFLAGS  += -I$(ROOTSYS)/include $(ROOTCFLAGS) 
 EXTRALIBS += $(ROOTLIBS)
@@ -44,7 +45,7 @@ $(G4TMPDIR) :
 
 
 libWCSimRoot.so : $(ROOTOBJS) 
-	@echo Compiling libWCSimRoot.so with GNUMakefile_root ...
+	@echo Compiling libWCSimRoot.so with GNUMakefile ...
 	@if [ ! -d $(G4TMPDIR) ] ; then mkdir $(G4TMPDIR) ; echo mkdir $(G4TMPDIR) ;fi
 	@$(CXX) -shared -O $^ -o $(ROOTSO) $(ROOTLIBS)
 	@cp src/WCSimRootDict_rdict.pcm $(G4WORKDIR)
