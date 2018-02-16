@@ -8,12 +8,12 @@
 #include "TClonesArray.h"
 
 #include "WCSimRootGeom.hh"
-
+/*
 #ifndef REFLEX_DICTIONARY
 ClassImp(WCSimRootGeom)
 ClassImp(WCSimRootPMT)
 #endif
-
+*/
 //______________________________________________________________________________
 WCSimRootGeom::WCSimRootGeom()
 {

@@ -19,7 +19,7 @@
 // #include "WCSimDetectorConstruction.hh"
 #include "WCSimEnumerations.hh"
 
-class TDirectory;
+//class TDirectory;
 
 
 class WCSimRootTrack : public TObject {
@@ -88,7 +88,7 @@ public:
   Float_t   GetStopTime() { return fTime2;}
   Int_t     GetId(){return fId;}
 
-  ClassDef(WCSimRootTrack,1)  
+  //ClassDef(WCSimRootTrack,1)  
 };
 
 
@@ -111,7 +111,7 @@ public:
   Int_t GetTubeID()       const { return fTubeID;}
   Int_t GetTotalPe(int i) const { return (i<2) ? fTotalPe[i]: 0;}
 
-  ClassDef(WCSimRootCherenkovHit,1)  
+  //ClassDef(WCSimRootCherenkovHit,1)  
 };
 
 class WCSimRootCherenkovHitTime : public TObject {
@@ -130,7 +130,7 @@ public:
   Float_t   GetTruetime() { return fTruetime;}
   Int_t     GetParentID() { return fPrimaryParentID;}
 
-  ClassDef(WCSimRootCherenkovHitTime,1)  
+  //ClassDef(WCSimRootCherenkovHitTime,1)  
 };
 
 
@@ -157,7 +157,7 @@ public:
   Int_t       GetTubeId() const { return fTubeId;}
   std::vector<int> GetPhotonIds() const { return fPhotonIds; }
 
-  ClassDef(WCSimRootCherenkovDigiHit,2)  
+  //ClassDef(WCSimRootCherenkovDigiHit,2)  
 };
 
 
@@ -182,7 +182,7 @@ public:
   Int_t GetSubEvtNumber() const { return fSubEvtNumber;}
   
 
-   ClassDef(WCSimRootEventHeader,2)  //WCSimRootEvent Header
+  //ClassDef(WCSimRootEventHeader,2)  //WCSimRootEvent Header
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -211,7 +211,7 @@ public:
   Float_t  GetGammaE(int i)           const { return (i<2) ? fGammaE[i]: 0;}
   Float_t  GetGammaVtx(int i, int j)  const { return fGammaVtx[i][j];}
 
-  ClassDef(WCSimRootPi0,1)
+  //ClassDef(WCSimRootPi0,1)
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ public:
 
   TClonesArray            *GetCherenkovDigiHits() const {return fCherenkovDigiHits;}
 
-  ClassDef(WCSimRootTrigger,2) //WCSimRootEvent structure
+  // ClassDef(WCSimRootTrigger,2) //WCSimRootEvent structure
 };
 
 
@@ -401,7 +401,7 @@ private:
   //std::vector<WCSimRootTrigger*> fEventList;
   TObjArray* fEventList;
   Int_t Current;                      //!               means transient, not writable to file
-  ClassDef(WCSimRootEvent,1)
+  //ClassDef(WCSimRootEvent,1)
 
 };
 

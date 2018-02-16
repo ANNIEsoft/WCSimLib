@@ -1,9 +1,9 @@
 #include "WCSimPmtInfo.hh"
-
+/*
 #ifndef REFLEX_DICTIONARY
 ClassImp(WCSimPmtInfo)
 #endif // __CINT__
-
+*/
   WCSimPmtInfo:: WCSimPmtInfo(){
 }
 

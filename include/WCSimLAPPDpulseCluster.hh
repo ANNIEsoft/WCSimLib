@@ -29,7 +29,7 @@ class WCSimLAPPDpulseCluster : public TObject {
   //  std::map<int,std::vector<double> > fLAPPDstripPulseCoordinate;
   int _nchannels; //number of uniques channels
 
-  ClassDef(WCSimLAPPDpulseCluster,0)
+  //  ClassDef(WCSimLAPPDpulseCluster,0)
 
 };
 

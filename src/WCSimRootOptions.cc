@@ -4,11 +4,11 @@
 #include <iostream>
 
 #include "WCSimRootOptions.hh"
-
+/*
 #ifndef REFLEX_DICTIONARY
 ClassImp(WCSimRootOptions)
 #endif
-
+*/
 using std::endl;
 using std::cout;
 
@@ -73,6 +73,6 @@ void WCSimRootOptions::Print(Option_t *) const
     << "\tGeneratorType: " << GeneratorType << endl
     << "WCSimPrimaryGeneratorAction" << endl
     << "\tRandomSeed: " << RandomSeed << endl
-    << "\tRandomGenerator: " << WCSimEnumerations::EnumAsString(RandomGenerator) << endl
+    //    << "\tRandomGenerator: " << WCSimEnumerations::EnumAsString(RandomGenerator) << endl
     << endl;
 }

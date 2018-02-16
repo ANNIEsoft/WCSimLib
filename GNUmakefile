@@ -13,7 +13,7 @@ CPPFLAGS  += -I$(PWD)/include
 CPPFLAGS  += -I$(ROOTSYS)/include $(ROOTCFLAGS) 
 EXTRALIBS += $(ROOTLIBS)
 
-CXX = g++
+CXX = g++ -std=c++1y
 G4SYSTEM=Linux-g++
 
 G4WORKDIR := .
@@ -56,18 +56,19 @@ libWCSimRoot.so : $(ROOTOBJS)
 
 ./src/WCSimRootDict.cc : $(ROOTSRC)
 	@echo Compiling rootcint ...
-	rootcling -f ./src/WCSimRootDict.cc -rml libWCSimRoot.so -rmf libWCSimRoot.rootmap -I./include -I$(shell root-config --incdir) WCSimRootEvent.hh WCSimRootGeom.hh WCSimPmtInfo.hh WCSimLAPPDInfo.hh WCSimLAPPDpulse.hh WCSimLAPPDpulseCluster.hh WCSimEnumerations.hh WCSimRootOptions.hh WCSimRootLinkDef.hh
+	rootcint -f ./src/WCSimRootDict.cc -rml libWCSimRoot.so -rmf libWCSimRoot.rootmap -I ./include -I$(shell root-config --incdir) 
+#WCSimRootEvent.hh WCSimRootGeom.hh WCSimPmtInfo.hh WCSimLAPPDInfo.hh WCSimLAPPDpulse.hh WCSimLAPPDpulseCluster.hh WCSimEnumerations.hh WCSimRootOptions.hh WCSimRootLinkDef.hh
 
 rootcint: ./src/WCSimRootDict.cc
 
 $(G4TMPDIR)/%.o: src/%.cc include/%.hh
-	@echo Compiling $*.cc ...
+	@echo Compiling a $*.cc ...
 	@if [ ! -d $(G4TMPDIR) ] ; then mkdir $(G4TMPDIR) ; echo mkdir $(G4TMPDIR) ;fi
 	@echo $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<
 	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<
 
-$(G4TMPDIR)/WCSimRootDict.o: src/WCSimRootDict.cc
-	@echo Compiling $*.cc ...
+$(G4TMPDIR)/WCSimRootDict.o: src/WCSimRootDict.cc libWCSimRoot.so
+	@echo Compiling b $*.cc ...
 	@if [ ! -d $(G4TMPDIR) ] ; then mkdir $(G4TMPDIR) ; echo mkdir $(G4TMPDIR) ;fi
 	@echo $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<
 	@$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $(G4TMPDIR)/$(*F).o $<

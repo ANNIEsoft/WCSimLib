@@ -9,7 +9,7 @@
 
 #include "TObject.h"
 
-class TDirectory;
+//class TDirectory;
 
 class WCSimLAPPDInfo : public TObject {
 private:
@@ -38,7 +38,7 @@ public:
   Double_t Get_orienz() {return orien_z;}
   Int_t Get_lappdid(){return lappd;}
  
-  ClassDef(WCSimLAPPDInfo,1);
+  //  ClassDef(WCSimLAPPDInfo,1);
 };
 
 #endif

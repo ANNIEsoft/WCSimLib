@@ -27,7 +27,7 @@ class WCSimLAPPDpulse : public TObject {
   double _pulsetime,_lefttime,_righttime,_peakvalue;
   int _stripnum; 
  
-  ClassDef(WCSimLAPPDpulse,0)
+  //  ClassDef(WCSimLAPPDpulse,0)
 
 };
 

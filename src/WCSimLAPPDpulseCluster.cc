@@ -11,7 +11,7 @@
 #include <cmath>
 
 
-ClassImp(WCSimLAPPDpulse)
+//ClassImp(WCSimLAPPDpulse)
 
 WCSimLAPPDpulseCluster::WCSimLAPPDpulseCluster()
 {

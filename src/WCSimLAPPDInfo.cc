@@ -1,8 +1,9 @@
 #include "WCSimLAPPDInfo.hh"
-
+/*
 #ifndef REFLEX_DICTIONARY
 ClassImp(WCSimLAPPDInfo)
 #endif // __CINT__
+*/
 
   WCSimLAPPDInfo:: WCSimLAPPDInfo(){
 }

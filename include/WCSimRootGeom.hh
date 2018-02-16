@@ -14,7 +14,7 @@
 #include "TClonesArray.h"
 #include <map>
 
-class TDirectory;
+//class TDirectory;
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ public:
   Float_t GetPosition(Int_t i=0) {return (i<3) ? fPosition[i] : 0;}
   std::string GetName(){ return fPmtTypeName;}
 
-  ClassDef(WCSimRootPMT,1)  //WCSimPMT structure
+  //ClassDef(WCSimRootPMT,1)  //WCSimPMT structure
 };
 
 
@@ -173,7 +173,7 @@ public:
   WCSimRootPMT GetMRDPMT(Int_t i){return *(WCSimRootPMT*)(*fMRDPMTArray)[i];}
   WCSimRootPMT GetFACCPMT(Int_t i){return *(WCSimRootPMT*)(*fFACCPMTArray)[i];}
 
-  ClassDef(WCSimRootGeom,1)  //WCSimRootEvent structure
+  //ClassDef(WCSimRootGeom,1)  //WCSimRootEvent structure
 };
 
 

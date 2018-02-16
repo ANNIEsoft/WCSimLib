@@ -26,12 +26,12 @@ typedef enum ERandomGeneratorType {
 class WCSimEnumerations
 {
 public:
-
+  /*
   static std::string EnumAsString(DigitizerType_t d);
   static std::string EnumAsString(TriggerType_t t);
   static std::string EnumAsString(WCSimRandomGenerator_t r);
   static TriggerType_t TriggerTypeFromString(std::string s);
-
+  */
 };
 
 #endif

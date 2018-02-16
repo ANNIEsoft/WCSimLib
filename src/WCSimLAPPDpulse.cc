@@ -10,7 +10,7 @@
 #include <cmath>
 
 
-ClassImp(WCSimLAPPDpulse)
+//ClassImp(WCSimLAPPDpulse)
 
 WCSimLAPPDpulse::WCSimLAPPDpulse(double pulsetime, double lefttime, double righttime, double peakvalue, int stripnum){
 _pulsetime = pulsetime;
