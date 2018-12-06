@@ -31,6 +31,12 @@ std::string WCSimEnumerations::EnumAsString(TriggerType_t t)
   case (kTriggerNoTrig) :
     return "NoTrigger";
     break;
+  case (kTriggerTankDigits) :
+    return "TankDigits";
+    break;
+  case (kPromptTrigger) :
+    return "PromptTrigger";
+    break;
   default:
     return "";
     break;

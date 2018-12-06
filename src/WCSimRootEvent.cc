@@ -38,7 +38,6 @@ WCSimRootTrigger::WCSimRootTrigger()
 {
   // Create an WCSimRootTrigger object.
 
-
   // WARNING : default constructor for ROOT : do not allocate memory
   // inside it or upon re-reading the object there will be a memory leak
   // TClonesArray of WCSimRootTracks
@@ -50,6 +49,9 @@ WCSimRootTrigger::WCSimRootTrigger()
   fCherenkovHitTimes = 0;
   fNcherenkovhits = 0;
   fNcherenkovhittimes = 0;
+  
+  // TClonesArray of Captures
+  fCaptures = 0;
 
   // TClonesArray of WCSimRootCherenkovDigiHits
   fCherenkovDigiHits = 0;
@@ -78,7 +80,7 @@ void WCSimRootTrigger::Initialize() //actually allocate memory for things in her
   // When the constructor is invoked for the first time, the class static
   // variable fgTracks is 0 and the TClonesArray fgTracks is created.
   // Sim. for the other TClonesArray
-  TStopwatch* mystopw = new TStopwatch();
+  //TStopwatch* mystopw = new TStopwatch();
 
   // TClonesArray of WCSimRootTracks
   fTracks = new TClonesArray("WCSimRootTrack", 10000);
@@ -98,12 +100,16 @@ void WCSimRootTrigger::Initialize() //actually allocate memory for things in her
   fNcherenkovdigihits = 0;
   fSumQ = 0;
 
+  // TClonesArray of WCSimRootCaptures
+  fCaptures = new TClonesArray("WCSimRootCapture", 100);
+  fNcaptures = 0;
+
   fTriggerType = kTriggerUndefined;
   fTriggerInfo.clear();
   
-  //  G4cout << " Time to allocate the TCAs :  Real = " << mystopw->RealTime() 
+  //  std::cout << " Time to allocate the TCAs :  Real = " << mystopw->RealTime() 
   //	    << " ; CPU = " << mystopw->CpuTime() << "\n";
-  delete mystopw;
+  //delete mystopw;
   
 
   IsZombie = false; // the memory has been allocated
@@ -116,28 +122,30 @@ WCSimRootTrigger::~WCSimRootTrigger()
   // now we must do a bunch a deleting stuff...
   //Destroys all the TClonesArray.. Let's see if Ren'e Brun is right...
 
-  TStopwatch* mystopw = new TStopwatch();
+  //TStopwatch* mystopw = new TStopwatch();
 
-  mystopw->Start();
+  //mystopw->Start();
 
   if (!IsZombie) {
 
-    fTracks->Delete();            
+    fTracks->Delete();
     fCherenkovHits->Delete();      
     fCherenkovHitTimes->Delete();   
     fCherenkovDigiHits->Delete();  
+    fCaptures->Delete();
     
     delete   fTracks;            
     delete   fCherenkovHits;      
     delete   fCherenkovHitTimes;   
     delete   fCherenkovDigiHits; 
+    delete   fCaptures;
   }
-  mystopw->Stop();
+  //mystopw->Stop();
 
-  //  G4cout << " Time to delete the TCAs :  Real = " << mystopw->RealTime() 
+  //  std::cout << " Time to delete the TCAs :  Real = " << mystopw->RealTime() 
   //    << " ; CPU = " << mystopw->CpuTime() << "\n";
 
-  delete mystopw;
+  //delete mystopw;
   //Clear("C");
 }
 
@@ -159,13 +167,17 @@ void WCSimRootTrigger::Clear(Option_t */*option*/)
   fNcherenkovdigihits = 0;
   fSumQ = 0;
 
+  // TClonesArray of WCSimRootCaptures
+  fNcaptures = 0;
+
   // remove whatever's in the arrays
   // but don't deallocate the arrays themselves
 
-  fTracks->Delete();            
+  fTracks->Clear("C");
   fCherenkovHits->Delete();      
   fCherenkovHitTimes->Delete();   
   fCherenkovDigiHits->Delete();
+  fCaptures->Delete();
 
   fTriggerType = kTriggerUndefined;
   fTriggerInfo.clear();
@@ -253,7 +265,9 @@ WCSimRootTrack *WCSimRootTrigger::AddTrack(Int_t ipnu,
 					   Int_t parenttype,
 					   Float_t time,
 					   Float_t time2,
-					   Int_t id)
+					   Int_t id,
+					   std::string sProcess,
+					   std::string eProcess)
 {
   // Add a new WCSimRootTrack to the list of tracks for this event.
   // To avoid calling the very time consuming operator new for each track,
@@ -280,7 +294,9 @@ WCSimRootTrack *WCSimRootTrigger::AddTrack(Int_t ipnu,
 					   parenttype,
 					   time,
 					   time2,
-					   id);
+					   id,
+					   sProcess,
+					   eProcess);
 
   return track;
 }
@@ -305,7 +321,9 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
 				 Int_t parenttype,
 				 Float_t time, 
 				 Float_t time2,
-				 Int_t id)
+				 Int_t id,
+				 std::string sProcess,
+				 std::string eProcess)
 {
 
   // Create a WCSimRootTrack object and fill it with stuff
@@ -332,8 +350,16 @@ WCSimRootTrack::WCSimRootTrack(Int_t ipnu,
   fTime = time;
   fTime2 = time2;
   fId = id;
+  fStartProcess = sProcess;
+  fEndProcess = eProcess;
 }
 
+//_____________________________________________________________________________
+void WCSimRootTrack::Clear(Option_t* /*o*/){
+  // must clear any datatypes that could potentially allocate memory
+  fStartProcess.clear();
+  fEndProcess.clear();
+}
 
 //_____________________________________________________________________________
 
@@ -413,6 +439,83 @@ WCSimRootCherenkovDigiHit::WCSimRootCherenkovDigiHit(Float_t q,
   fTubeId = tubeid;
   fPhotonIds = photon_ids;
 }
+
+//_____________________________________________________________________________
+void WCSimRootTrigger::SetCaptureParticle(Int_t parent,
+                                          Int_t ipnu,
+                                          Float_t time,
+                                          Float_t vtx[3],
+                                          Float_t dir[3],
+                                          Float_t energy,
+                                          Int_t id)
+{
+    WCSimRootCapture * capture = 0;
+    for(int i = 0; i<fCaptures->GetEntriesFast(); i++){
+        if(((WCSimRootCapture*)fCaptures->At(i))->GetCaptureParent() == parent)
+            capture = (WCSimRootCapture*)fCaptures->At(i);
+    }
+    if(capture == 0) {
+        TClonesArray &captures = *fCaptures;
+        capture = new(captures[fNcaptures++]) WCSimRootCapture(parent);
+    }
+    if(ipnu==22) capture->AddGamma(id, energy, dir);
+    else capture->SetInfo(vtx, time, ipnu);
+}
+
+//_____________________________________________________________________________
+WCSimRootCapture::WCSimRootCapture(Int_t captureParent)
+{
+    fCaptureParent = captureParent;
+    fNGamma = 0;
+    fTotalGammaE = 0;
+    fGammas = new TClonesArray("WCSimRootCaptureGamma", 10);
+    IsZombie=false;
+}
+
+//_____________________________________________________________________________
+
+WCSimRootCapture::~WCSimRootCapture()
+{
+    if(!IsZombie) {
+        fGammas->Delete();
+        delete fGammas;
+    }
+}
+
+//_____________________________________________________________________________
+
+void WCSimRootCapture::SetInfo(Float_t captureVtx[3],
+                               Float_t captureT,
+                               Int_t   captureNucleus)
+{
+    for (int i=0;i<3;i++) fCaptureVtx[i] = captureVtx[i];
+    fCaptureT = captureT;
+    fCaptureNucleus = captureNucleus;
+}
+
+//_____________________________________________________________________________
+
+void WCSimRootCapture::AddGamma(Int_t   gammaID,
+                                Float_t gammaE,
+                                Float_t gammaDir[3])
+{
+    TClonesArray &gammas = *fGammas;
+    new(gammas[fNGamma]) WCSimRootCaptureGamma(gammaID, gammaE, gammaDir);
+    fTotalGammaE += gammaE;
+    fNGamma++;
+}
+
+//_____________________________________________________________________________
+
+WCSimRootCaptureGamma::WCSimRootCaptureGamma(Int_t id,
+                                             Float_t energy,
+                                             Float_t *dir) {
+    fID = id;
+    fEnergy = energy;
+    for(int i=0;i<3;i++) fDir[i] = dir[i];
+}
+
+//_____________________________________________________________________________
 
 // M Fechner, august 2006
 

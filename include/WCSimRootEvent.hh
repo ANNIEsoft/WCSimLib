@@ -45,6 +45,8 @@ private:
   Float_t fTime;   // start time
   Float_t fTime2;  // end time 
   Int_t fId;
+  std::string fStartProcess;
+  std::string fEndProcess;
 
 public:
   WCSimRootTrack() {}
@@ -53,8 +55,8 @@ public:
 		  Float_t m, 
 		  Float_t p, 
 		  Float_t E, 
-		  Float_t endE, 
 		  Float_t endP, 
+		  Float_t endE, 
 		  Int_t startvol, 
 		  Int_t stopvol, 
 		  Float_t dir[3], 
@@ -65,7 +67,9 @@ public:
 		  Int_t parenttype,
 		  Float_t time,
 		  Float_t endtime,
-		 Int_t id);
+		  Int_t id,
+		  std::string sProcess,
+		  std::string eProcess);
   
   virtual ~WCSimRootTrack() { }
 
@@ -87,6 +91,10 @@ public:
   Float_t   GetTime() { return fTime;}
   Float_t   GetStopTime() { return fTime2;}
   Int_t     GetId(){return fId;}
+  std::string GetStartProcess(){return fStartProcess;}
+  std::string GetEndProcess(){return fEndProcess;}
+  
+  void Clear(Option_t *option ="");
 
   ClassDef(WCSimRootTrack,1)  
 };
@@ -170,16 +178,30 @@ private:
   Int_t   fRun;
   Int_t   fDate;
   Int_t   fSubEvtNumber;
+  
+  TString fDirtFileName;
+  TString fGenieFileName;
+  Int_t   fDirtEntryNum;
+  Int_t   fGenieEntryNum;
 
 public:
   WCSimRootEventHeader() : fEvtNum(0), fRun(0), fDate(0), fSubEvtNumber(1) { }
    virtual ~WCSimRootEventHeader() { }
   void   Set(Int_t i, Int_t r, Int_t d, Int_t s=1) { fEvtNum = i; fRun = r; fDate = d; fSubEvtNumber = s;}
-  void SetDate(Int_t d) { fDate=d; }
+  void   SetDate(Int_t d) { fDate=d; }
+  void   SetDirtFileName(TString namein){ fDirtFileName = namein; }
+  void   SetGenieFileName(TString namein){ fGenieFileName = namein; }
+  void   SetDirtEntryNum(Int_t numin){ fDirtEntryNum = numin; }
+  void   SetGenieEntryNum(Int_t numin){ fGenieEntryNum = numin; }
+  
    Int_t  GetEvtNum() const { return fEvtNum; }
    Int_t  GetRun() const { return fRun; }
    Int_t  GetDate() const { return fDate; }
-  Int_t GetSubEvtNumber() const { return fSubEvtNumber;}
+   Int_t GetSubEvtNumber() const { return fSubEvtNumber;}
+   TString GetDirtFileName() const { return fDirtFileName; }
+   TString GetGenieFileName() const { return fGenieFileName; }
+   Int_t GetDirtEntryNum() const { return fDirtEntryNum; }
+   Int_t GetGenieEntryNum() const { return fGenieEntryNum; }
   
 
    ClassDef(WCSimRootEventHeader,2)  //WCSimRootEvent Header
@@ -216,6 +238,77 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class WCSimRootCaptureGamma : public TObject {
+
+private:
+  Int_t   fID;
+  Float_t fEnergy;
+  Float_t fDir[3];
+
+public:
+  WCSimRootCaptureGamma() {}
+  WCSimRootCaptureGamma(Int_t id,
+                        Float_t energy,
+                        Float_t dir[3]
+  );
+
+  virtual ~WCSimRootCaptureGamma() {}
+
+  Int_t    GetID()           const { return fID;}
+  Float_t  GetE()            const { return fEnergy;}
+  Float_t  GetDir(int i)     const { return (i<3) ? fDir[i]: 0;}
+
+  ClassDef(WCSimRootCaptureGamma,1)
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+
+class WCSimRootCapture : public TObject {
+// this is a class used specifically for neutron capture events
+
+private:
+   Int_t          fCaptureParent;
+   Float_t        fCaptureVtx[3];
+   Int_t          fNGamma;
+   Float_t        fTotalGammaE;
+   Float_t        fCaptureT;
+   Int_t          fCaptureNucleus;
+   TClonesArray * fGammas;
+   bool           IsZombie;
+
+public:
+   WCSimRootCapture() {
+             fGammas = 0;
+             IsZombie = true;
+           }
+   WCSimRootCapture(Int_t captureParent);
+
+   virtual ~WCSimRootCapture();
+
+   void SetInfo(Float_t captureVtx[3],
+                Float_t captureT,
+                Int_t   captureNucleus
+   );
+
+   void AddGamma(Int_t   gammaID,
+                 Float_t gammaE,
+                 Float_t gammaDir[3]
+   );
+
+   Int_t                   GetCaptureParent()   const { return fCaptureParent;}
+   Float_t                 GetCaptureVtx(int i) const { return (i<3) ? fCaptureVtx[i]: 0;}
+   Int_t                   GetNGamma()          const { return fNGamma;}
+   Float_t                 GetTotalGammaE()     const { return fTotalGammaE;}
+   Float_t                 GetCaptureT()        const { return fCaptureT;}
+   Int_t                   GetCaptureNucleus()  const { return fCaptureNucleus;}
+   TClonesArray           *GetGammas()          const { return fGammas;}
+
+   ClassDef(WCSimRootCapture,1)
+};
+
+////////////////////////////////////////////////////////////////////////////
+
 class WCSimRootTrigger : public TObject {
 
 private:
@@ -230,6 +323,9 @@ private:
   Int_t                fJp;
 
   WCSimRootPi0        fPi0;                // Pi0 info (default = not used)
+
+  TClonesArray        *fCaptures;            // Neutron capture info (default = not used)
+  Int_t                fNcaptures;           // Number of tracks in the array
 
   Int_t                fNpar;               // Number of particles
   Int_t                fNtrack;             // Number of tracks in the array
@@ -280,9 +376,16 @@ public:
   void          SetSumQ(Float_t x){fSumQ = x;}
   void          SetNumDigitizedTubes(Int_t i) {fNumDigitizedTubes = i;}
   void          SetPi0Info(Float_t pi0Vtx[3], 
-			   Int_t   gammaID[2], 
-			   Float_t gammaE[2],
-			   Float_t gammaVtx[2][3]);
+                           Int_t   gammaID[2], 
+                           Float_t gammaE[2],
+                           Float_t gammaVtx[2][3]);
+  void          SetCaptureParticle(Int_t parent,
+                                   Int_t ipnu,
+                                   Float_t time,
+                                   Float_t vtx[3],
+                                   Float_t dir[3],
+                                   Float_t energy,
+                                   Int_t id);
 
 
   WCSimRootEventHeader *GetHeader()               {return &fEvtHdr; }
@@ -324,9 +427,13 @@ public:
 				   Int_t parenttype,
 				   Float_t time,
 				   Float_t time2,
-				   Int_t id);
+				   Int_t id,
+				   std::string sProcess,
+				   std::string eProcess);
 
   TClonesArray        *GetTracks() const {return fTracks;}
+  
+  Int_t               GetNcaptures()          const {return fNcaptures; }
 
   WCSimRootCherenkovHit   *AddCherenkovHit(Int_t                tubeID,
 					  std::vector<Float_t> truetime,
@@ -344,6 +451,7 @@ public:
  //                                                 Float_t sumq);
 
   TClonesArray            *GetCherenkovDigiHits() const {return fCherenkovDigiHits;}
+  TClonesArray            *GetCaptures() const {return fCaptures;}
 
   ClassDef(WCSimRootTrigger,2) //WCSimRootEvent structure
 };
