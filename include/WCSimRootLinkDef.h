@@ -70,4 +70,19 @@
 #pragma read sourceClass="WCSimRootGeom" targetClass="WCSimRootGeom_v3";
 #pragma read sourceClass="WCSimRootOptions" targetClass="WCSimRootOptions_v3";
 
+#pragma link C++ class WCSimEnumerations_wrapper+;
+#pragma link C++ class WCSimRootCherenkovDigiHit_wrapper+;
+#pragma link C++ class WCSimRootCherenkovHit_wrapper+;
+#pragma link C++ class WCSimRootCherenkovHitTime_wrapper+;
+#pragma link C++ class WCSimRootTrack_wrapper+;
+#pragma link C++ class WCSimRootEventHeader_wrapper+;
+#pragma link C++ class WCSimRootTrigger_wrapper+;
+#pragma link C++ class WCSimRootEvent_wrapper+;
+#pragma link C++ class WCSimRootPi0_wrapper+;
+#pragma link C++ class WCSimRootGeom_wrapper+;
+#pragma link C++ class WCSimRootPMT_wrapper+;
+#pragma link C++ class WCSimRootOptions_wrapper+;
+#pragma link C++ class WCSimRootCapture_wrapper+;
+#pragma link C++ class WCSimRootCaptureGamma_wrapper+;
+
 #endif
