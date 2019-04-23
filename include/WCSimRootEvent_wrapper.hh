@@ -46,7 +46,7 @@ public:
   // so far no new methods introduced by later versions, only type changes in returns
 
   inline Int_t GetVersion()         const { return evt->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return evt->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return evt->GetCheckSum(); }
   inline const WCSimRootEvent_v0* GetPtr() const { return evt; }
 
 };

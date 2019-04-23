@@ -31,7 +31,7 @@ public:
   inline Float_t  GetGammaVtx(int i, int j)  const { return pizero->GetGammaVtx(i,j);}
 
   inline Int_t GetVersion()         const { return pizero->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return pizero->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return pizero->GetCheckSum(); }
   inline const WCSimRootPi0_v0* GetPtr() const { return pizero; }
 };
 

@@ -35,7 +35,7 @@ public:
    inline TClonesArray           *GetGammas()          const { return capture->GetGammas();}
 
    inline Int_t GetVersion()         const { return capture->GetVersion(); }
-   inline Int_t GetCheckSum()        const { return capture->GetCheckSum(); }
+   inline UInt_t GetCheckSum()        const { return capture->GetCheckSum(); }
    inline const WCSimRootCapture_v0* GetPtr() const { return capture; }
 };
 

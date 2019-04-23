@@ -26,7 +26,7 @@ public:
   inline std::vector<int> GetPhotonIds() const { return digi->GetPhotonIds(); }
 
   inline Int_t GetVersion()         const { return digi->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return digi->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return digi->GetCheckSum(); }
   inline const WCSimRootCherenkovDigiHit_v0* GetPtr() const { return digi; }
 };
 

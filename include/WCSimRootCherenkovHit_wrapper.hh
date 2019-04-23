@@ -22,7 +22,7 @@ public:
   inline Int_t GetTotalPe(int i) const { return hit->GetTotalPe(i);}
 
   inline Int_t GetVersion()         const { return hit->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return hit->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return hit->GetCheckSum(); }
   inline const WCSimRootCherenkovHit_v0* GetPtr() const { return hit; }
 };
 

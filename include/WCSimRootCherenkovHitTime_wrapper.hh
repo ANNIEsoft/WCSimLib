@@ -22,7 +22,7 @@ public:
   inline Int_t     GetParentID() { return hittime->GetParentID();}
 
   inline Int_t GetVersion()         const { return hittime->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return hittime->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return hittime->GetCheckSum(); }
   inline const WCSimRootCherenkovHitTime_v0* GetPtr() const { return hittime; }
 };
 

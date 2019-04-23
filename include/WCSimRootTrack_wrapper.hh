@@ -49,7 +49,7 @@ public:
   /////////////////////
 
   inline Int_t GetVersion()         const { return thetrack->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return thetrack->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return thetrack->GetCheckSum(); }
   inline const WCSimRootTrack_v0* GetPtr() const { return thetrack; }
 };
 

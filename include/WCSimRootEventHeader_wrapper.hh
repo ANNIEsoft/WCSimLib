@@ -49,7 +49,7 @@ public:
   public:
   
   inline Int_t GetVersion()         const { return head->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return head->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return head->GetCheckSum(); }
   inline const WCSimRootEventHeader_v0* GetPtr() const { return head; }
 };
 

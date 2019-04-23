@@ -43,7 +43,7 @@ public:
 
   public:
   inline Int_t GetVersion()         const { return thepmt->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return thepmt->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return thepmt->GetCheckSum(); }
   inline const WCSimRootPMT_v0* GetPtr() const { return thepmt; }
 };
 

@@ -140,7 +140,7 @@ public:
 
   public:
   inline Int_t GetVersion()         const { return trig->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return trig->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return trig->GetCheckSum(); }
   inline const WCSimRootTrigger_v0* GetPtr() const { return trig; }
 };
 

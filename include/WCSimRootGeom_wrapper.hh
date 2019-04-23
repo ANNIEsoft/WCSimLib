@@ -90,7 +90,7 @@ public:
   /////////////////////////
 
   inline Int_t GetVersion()         const { return geo->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return geo->GetCheckSum(); }
+  inline Int_t UGetCheckSum()        const { return geo->GetCheckSum(); }
   inline const WCSimRootGeom_v0* GetPtr() const { return geo; }
 };
 

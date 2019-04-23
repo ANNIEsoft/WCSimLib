@@ -15,7 +15,7 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-class WCSimRootOptions_wrapper : public TObject {
+class WCSimRootOptions_wrapper {
 
 protected:
   WCSimRootOptions_v0* opt=nullptr;
@@ -162,7 +162,7 @@ public:
 
   public:
   inline Int_t GetVersion()         const { return opt->GetVersion(); }
-  inline Int_t GetCheckSum()        const { return opt->GetCheckSum(); }
+  inline UInt_t GetCheckSum()        const { return opt->GetCheckSum(); }
   inline const WCSimRootOptions_v0* GetPtr() const { return opt; }
 };
 
