@@ -13,7 +13,7 @@ UInt_t WCSimRootEvent_v1::GetCheckSum(){ return 4147785461; }
 
 void WCSimRootEvent_v1::Initialize()
 {
-  fEventList = new TObjArray(10,0); // very rarely more than 10 subevents...
+  fEventList = new TObjArray_wrapper(10,0); // very rarely more than 10 subevents...
   fEventList->AddAt(new WCSimRootTrigger_v1(0,0),0);
   Current = 0;
 }

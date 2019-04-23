@@ -39,6 +39,9 @@
 #pragma link C++ class WCSimRootGeom_v3+;
 #pragma link C++ class WCSimRootOptions_v3+;
 
+#pragma link C++ class TObjArray_wrapper-;
+#pragma read sourceClass="TObjArray" targetClass="TObjArray_wrapper";
+
 #pragma read sourceClass="WCSimRootCherenkovDigiHit" targetClass="WCSimRootCherenkovDigiHit_v0";
 #pragma read sourceClass="WCSimRootCherenkovHit" targetClass="WCSimRootCherenkovHit_v0";
 #pragma read sourceClass="WCSimRootCherenkovHitTime" targetClass="WCSimRootCherenkovHitTime_v0";

@@ -10,7 +10,16 @@
 #include "TObject.h"
 #include "TClonesArray.h"
 #include "WCSimRootTrigger_v0.hh"
+#include "TClassRef.h"
 
+
+  class TObjArray_wrapper : public TObjArray{
+    public:
+    TObjArray_wrapper(int a, int b) : TObjArray(a,b){};
+    TObjArray_wrapper(const TObjArray &a) : TObjArray(a){};
+    ClassDef(TObjArray_wrapper,1)
+  };
+  
 //////////////////////////////////////////////////////////////////////////
 
 class WCSimRootEvent_v0 : public TObject {
@@ -66,7 +75,8 @@ public:
 
 protected:
   //std::vector<WCSimRootTrigger_v0*> fEventList;
-  TObjArray* fEventList;
+//  TObjArray* fEventList;
+  TObjArray_wrapper *fEventList;
   Int_t Current;                      //!               means transient, not writable to file
   ClassDef(WCSimRootEvent_v0,1)
 
