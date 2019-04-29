@@ -8,18 +8,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include "TObject.h"
+#include "TObjArray_wrapper.hh"
 #include "TClonesArray.h"
 #include "WCSimRootTrigger_v0.hh"
-#include "TClassRef.h"
 
-
-  class TObjArray_wrapper : public TObjArray{
-    public:
-    TObjArray_wrapper(int a, int b) : TObjArray(a,b){};
-    TObjArray_wrapper(const TObjArray &a) : TObjArray(a){};
-    ClassDef(TObjArray_wrapper,1)
-  };
-  
 //////////////////////////////////////////////////////////////////////////
 
 class WCSimRootEvent_v0 : public TObject {
