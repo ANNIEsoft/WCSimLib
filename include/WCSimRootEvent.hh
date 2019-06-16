@@ -506,6 +506,10 @@ public:
   void Initialize();
 
   void ReInitialize() { // need to remove all subevents at the end, or they just get added anyway...
+    std::cout<<"reinitializing WCSimRootEvent: deleting ";
+    if(fEventList==nullptr) std::cout<<"0 triggers"<<std::endl;
+    else std::cout<<fEventList->GetLast()<<" triggers"<<std::endl;
+    if(fEventList==nullptr) return;   // no triggers; nothing to do
     for ( int i = fEventList->GetLast() ; i>=1 ; i--) {
       //      G4cout << "removing element # " << i << "...";
       WCSimRootTrigger* tmp = 
@@ -520,7 +524,7 @@ public:
 
 private:
   //std::vector<WCSimRootTrigger*> fEventList;
-  TObjArray* fEventList;
+  TObjArray* fEventList=nullptr;
   Int_t Current;                      //!               means transient, not writable to file
   ClassDef(WCSimRootEvent,1)
 
