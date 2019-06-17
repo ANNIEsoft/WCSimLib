@@ -165,6 +165,8 @@ public:
   Int_t       GetTubeId() const { return fTubeId;}
   std::vector<int> GetPhotonIds() const { return fPhotonIds; }
 
+  void Clear(Option_t *option ="");
+
   ClassDef(WCSimRootCherenkovDigiHit,2)  
 };
 
@@ -303,6 +305,8 @@ public:
    Float_t                 GetCaptureT()        const { return fCaptureT;}
    Int_t                   GetCaptureNucleus()  const { return fCaptureNucleus;}
    TClonesArray           *GetGammas()          const { return fGammas;}
+
+  void          Clear(Option_t *option ="");
 
    ClassDef(WCSimRootCapture,1)
 };
@@ -506,20 +510,27 @@ public:
   void Initialize();
 
   void ReInitialize() { // need to remove all subevents at the end, or they just get added anyway...
-    std::cout<<"reinitializing WCSimRootEvent: deleting ";
-    if(fEventList==nullptr) std::cout<<"0 triggers"<<std::endl;
-    else std::cout<<fEventList->GetLast()<<" triggers"<<std::endl;
+    std::cout<<"reinitializing WCSimRootEvent at "<<this<<": deleting ";
+    if(fEventList==nullptr) std::cout<<"0 (null fEventList) triggers"<<std::endl;
+    else std::cout<<fEventList->GetLast()<<" ("<<fEventList->GetEntriesFast()<<") triggers"<<std::endl;
     if(fEventList==nullptr) return;   // no triggers; nothing to do
     for ( int i = fEventList->GetLast() ; i>=1 ; i--) {
       //      G4cout << "removing element # " << i << "...";
+      std::cout<<"deleting trigger "<<i<<std::endl;
       WCSimRootTrigger* tmp = 
-	dynamic_cast<WCSimRootTrigger*>(fEventList->RemoveAt(i));
-      delete tmp;
+	dynamic_cast<WCSimRootTrigger*>(fEventList->RemoveAt(i));  // for TObjArray, just removes from array and returns
+      if(tmp==nullptr) continue;  // shouldn't happen; only if we try to RemoveAt out of bounds
+      std::cout<<"Calling tmp->Delete() on "<<tmp<<std::endl;
+      tmp->Delete();  // removes from gInterpreter and calls 'delete this'
+      //std::cout<<"performing normal delete on tmp="<<tmp<<std::endl;
+      //delete tmp;   << seems to segfault: tmp->Delete already did this?!
+      std::cout<<"gone"<<std::endl;
       //G4cout <<"done !\n";
     }
     Current = 0;
+    std::cout<<"clearing trigger 0"<<std::endl;
     WCSimRootTrigger* tmp = dynamic_cast<WCSimRootTrigger*>( (*fEventList)[0]);
-    tmp->Clear();
+    tmp->Clear("C+C");
   }
 
 private:

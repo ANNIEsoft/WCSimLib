@@ -37,7 +37,7 @@ ClassImp(WCSimRootEvent)
 WCSimRootTrigger::WCSimRootTrigger()
 {
   // Create an WCSimRootTrigger object.
-  std::cout<<"DEFAULT CONSTRUCTING A TRIGGER"<<std::endl;
+  std::cout<<"Default constructing a trigger at "<<this<<std::endl;
 
   // WARNING : default constructor for ROOT : do not allocate memory
   // inside it or upon re-reading the object there will be a memory leak
@@ -70,7 +70,7 @@ WCSimRootTrigger::WCSimRootTrigger()
 
 WCSimRootTrigger::WCSimRootTrigger(int Number,int Subevt)
 {
-  std::cout<<"Constructing trigger "<<Number<<", "<<Subevt<<std::endl;
+  std::cout<<"Constructing trigger "<<Number<<", "<<Subevt<<" at "<<this<<std::endl;
   this->Initialize();
   fEvtHdr.Set(Number,0,0,Subevt);
 }
@@ -85,7 +85,7 @@ void WCSimRootTrigger::Initialize() //actually allocate memory for things in her
   // variable fgTracks is 0 and the TClonesArray fgTracks is created.
   // Sim. for the other TClonesArray
   //TStopwatch* mystopw = new TStopwatch();
-  std::cout<<"Initializing a trigger"<<std::endl;
+  std::cout<<"Initializing a trigger at "<<this<<std::endl;
 
   // TClonesArray of WCSimRootTracks
   fTracks = new TClonesArray("WCSimRootTrack", 10000);
@@ -132,10 +132,11 @@ WCSimRootTrigger::~WCSimRootTrigger()
   //mystopw->Start();
   std::cout<<"Destructing a ";
   if(IsZombie) std::cout<<"zombie";
-  std::cout<<" trigger"<<std::endl;
+  std::cout<<" trigger at "<<this<<std::endl;
 
   if (!IsZombie) {
 
+    std::cout<<"not a zombie"<<std::endl;
     fTracks->Delete();
     fCherenkovHits->Delete();      
     fCherenkovHitTimes->Delete();   
@@ -180,13 +181,19 @@ void WCSimRootTrigger::Clear(Option_t */*option*/)
 
   // remove whatever's in the arrays
   // but don't deallocate the arrays themselves
-  std::cout<<"Clearing a Trigger"<<std::endl;
+  std::cout<<"Clearing a Trigger at "<<this<<std::endl;
 
   fTracks->Clear("C");
-  fCherenkovHits->Delete();      
-  fCherenkovHitTimes->Delete();   
-  fCherenkovDigiHits->Delete();
-  fCaptures->Delete();
+  fCherenkovHits->Clear("C");
+  fCherenkovHitTimes->Clear("C");
+  fCherenkovDigiHits->Clear("C");
+  fCaptures->Clear("C+C");
+
+//  fTracks->Delete();
+//  fCherenkovHits->Delete();      
+//  fCherenkovHitTimes->Delete();   
+//  fCherenkovDigiHits->Delete();
+//  fCaptures->Delete();
 
   fTriggerType = kTriggerUndefined;
   fTriggerInfo.clear();
@@ -534,6 +541,11 @@ WCSimRootCherenkovDigiHit::WCSimRootCherenkovDigiHit(Float_t q,
 }
 
 //_____________________________________________________________________________
+void WCSimRootCherenkovDigiHit::Clear(Option_t *option){
+  fPhotonIds.clear();
+}
+
+//_____________________________________________________________________________
 void WCSimRootTrigger::SetCaptureParticle(Int_t parent,
                                           Int_t ipnu,
                                           Float_t time,
@@ -573,6 +585,12 @@ WCSimRootCapture::~WCSimRootCapture()
         fGammas->Delete();
         delete fGammas;
     }
+}
+//_____________________________________________________________________________
+
+void WCSimRootCapture::Clear(Option_t *option){
+  fGammas->Clear("C");
+  fNGamma=0;
 }
 
 //_____________________________________________________________________________
@@ -618,7 +636,7 @@ WCSimRootEvent::WCSimRootEvent()
   //fEventList.push_back(new WCSimRootTrigger() ); //at least one event 
   // this is standard root practise for streaming ROOT objtecs : if memory is alloc'ed here,
   // it will be lost
-  std::cout<<"default constructing an Event"<<std::endl;
+  std::cout<<"default constructing an Event at "<<this<<std::endl;
   fEventList = 0;
   Current = 0;
 }
@@ -627,14 +645,16 @@ void WCSimRootEvent::Initialize()
 {
   std::cout<<"initializing an event, making new trigger"<<std::endl;
   fEventList = new TObjArray(10,0); // very rarely more than 10 subevents...
+//  fEventList->SetOwner(kTRUE);      // not sure if this'll work. Make TObjArray own it's contents.
   fEventList->AddAt(new WCSimRootTrigger(0,0),0);
+  std::cout<<"fEventList="<<fEventList<<std::endl;
   Current = 0;
 }
 
 
 WCSimRootEvent::~WCSimRootEvent()
 {
-  std::cout<<"Destructing an event; deleting ";
+  std::cout<<"Destructing an event at "<<this<<", containing fEventList "<<fEventList<<" with ";
   if(fEventList) std::cout<<fEventList->GetEntriesFast();
   else std::cout<<"0";
   std::cout<<" triggers"<<std::endl;
@@ -653,6 +673,9 @@ WCSimRootEvent::~WCSimRootEvent()
 void WCSimRootEvent::Clear(Option_t* /*o*/)
 {
   //nothing for now
+  std::cout<<"clearing event at "<<this<<std::endl;
+  std::cout<<"fEventList="<<fEventList<<", has "<<fEventList->GetEntries()<<" entries"<<std::endl;
+  fEventList->Clear("C+C");
 }
 
 void WCSimRootEvent::Reset(Option_t* /*o*/)
