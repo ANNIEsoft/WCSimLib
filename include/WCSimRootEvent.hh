@@ -13,6 +13,8 @@
 #include <vector>
 #include <iostream>
 #include "jhfNtuple.h"
+#include "TH1D.h"
+#include "TH2D.h"
 //#include <map>
 //#include "G4Transform3D.hh"
 
@@ -194,7 +196,7 @@ private:
   Int_t   fGenieEntryNum;
 
 public:
-  WCSimRootEventHeader() : fEvtNum(0), fRun(0), fDate(0), fSubEvtNumber(1) { }
+  WCSimRootEventHeader() : fEvtNum(0), fRun(0), fDate(0), fSubEvtNumber(1), fDirtFileName(""), fGenieFileName(""), fDirtEntryNum(-1), fGenieEntryNum(-1){ }
    virtual ~WCSimRootEventHeader() { }
   void   Set(Int_t i, Int_t r, Int_t d, Int_t s=1) { fEvtNum = i; fRun = r; fDate = d; fSubEvtNumber = s;}
   void   SetDate(Int_t d) { fDate=d; }
@@ -345,6 +347,9 @@ private:
   Int_t                fNcherenkovhits;      // Number of hits in the array
   TClonesArray         *fCherenkovHits;      //-> Array of WCSimRootCherenkovHits
 
+  Int_t			fCherenkov;		//Number of Cherenkov photons
+  Int_t			fCherenkovWCSim;		//Number of Cherenkov photons in typical WCSim range (200nm-790nm)
+
   Int_t                fCherenkovHitCounter;
   Int_t                fNcherenkovhittimes;      // Number of hits in the array
   TClonesArray         *fCherenkovHitTimes;      //-> Array of WCSimRootCherenkovHits
@@ -356,6 +361,11 @@ private:
 
   TriggerType_t        fTriggerType;         // Trigger algorithm that created this trigger
   std::vector<Float_t> fTriggerInfo;         // Information about how it passed the trigger (e.g. how many hits in the NDigits window)
+
+  TH1D *hEventCher = nullptr;
+  TH1D *hEventCherWCSim = nullptr;
+  TH2D *hEventCherXZ = nullptr;
+  TH2D *hEventCherYZ = nullptr;
 
   bool IsZombie;
 
@@ -398,7 +408,40 @@ public:
                                    Float_t energy,
                                    Int_t id);
   void          SetParentEvent(WCSimRootEvent* parenteventin){ fParentEvent = parenteventin; }
-
+  void		SetNCherenkov(Int_t n_Cher) { fCherenkov = n_Cher; }
+  void		SetNCherenkovWCSim(Int_t n_CherWCSim) { fCherenkovWCSim = n_CherWCSim; }
+  void          SetHCher(TH1D* h){
+    if (hEventCher){
+      delete hEventCher;
+      hEventCher = nullptr;
+    }
+    hEventCher = (TH1D*) h->Clone();
+  }
+  TH1D* GetHCher() { return hEventCher;}
+  void          SetHCherWCSim(TH1D* h){
+    if (hEventCherWCSim){
+      delete hEventCherWCSim;
+      hEventCherWCSim = nullptr;
+    }
+    hEventCherWCSim = (TH1D*) h->Clone();
+  }
+  TH1D* GetHCherWCSim() { return hEventCherWCSim;}
+  void          SetHCherXZ(TH2D* h){
+    if (hEventCherXZ){
+      delete hEventCherXZ;
+      hEventCherXZ = nullptr;
+    }
+    hEventCherXZ = (TH2D*) h->Clone();
+  }
+  TH2D* GetHCherXZ() { return hEventCherXZ;}
+  void          SetHCherYZ(TH2D* h){
+    if (hEventCherYZ){
+      delete hEventCherYZ;
+      hEventCherYZ = nullptr;
+    }
+    hEventCherYZ = (TH2D*) h->Clone();
+  }
+  TH2D* GetHCherYZ() { return hEventCherYZ;}
 
   WCSimRootEventHeader *GetHeader()               {return &fEvtHdr; }
   WCSimRootPi0       *GetPi0Info()                 {return &fPi0; }
@@ -422,6 +465,8 @@ public:
   TriggerType_t       GetTriggerType()        const { return fTriggerType;}
   std::vector<Float_t> GetTriggerInfo()        const { return fTriggerInfo;}
   WCSimRootEvent*     GetParentEvent()        const {return fParentEvent;}
+  Int_t 		GetNCherenkov()		const { return fCherenkov;}
+  Int_t 		GetNCherenkovWCSim()		const { return fCherenkovWCSim;}
 
   WCSimRootTrack         *AddTrack(Int_t ipnu, 
 				   Int_t flag, 
@@ -518,14 +563,16 @@ public:
   void Initialize();
 
   void ReInitialize() { // need to remove all subevents at the end, or they just get added anyway...
+    Current = 0;
+    if(fEventList==nullptr) return;
     for ( int i = fEventList->GetLast() ; i>=1 ; i--) {
-      //      G4cout << "removing element # " << i << "...";
+           // std::cout << "removing element # " << i << "...";
       WCSimRootTrigger* tmp = 
 	dynamic_cast<WCSimRootTrigger*>(fEventList->RemoveAt(i));
+      //std::cout<<"deleting tmp "<<tmp<<std::endl;
       delete tmp;
-      //G4cout <<"done !\n";
+      //std::cout <<"done !\n";
     }
-    Current = 0;
     WCSimRootTrigger* tmp = dynamic_cast<WCSimRootTrigger*>( (*fEventList)[0]);
     tmp->Clear();
   }

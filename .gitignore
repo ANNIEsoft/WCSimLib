@@ -4,3 +4,9 @@
 #ignore build tmp
 tmp/*
 
+# ignore build products
+WCSimRootDict_rdict.pcm
+libWCSimRoot.rootmap
+libWCSimRoot.so
+src/WCSimRootDict.cc
+src/WCSimRootDict_rdict.pcm

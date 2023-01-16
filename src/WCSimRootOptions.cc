@@ -42,71 +42,73 @@ void WCSimRootOptions::PopulateFileVersion()
     assert(false);
   }
   
-  // we'll also retrieve the git commit hash
-  filepath = "CommitHash.txt"; // this file stores the hash of the current commit
+  // we'll also try to retrieve the git commit hash.
   CommitHash = "";
-  fin.open(filepath.c_str());
-  if(fin.is_open()){
-    std::getline(fin,CommitHash);
-    fin.close();
-  }
-  // But requiring the user to keep this file up-to-date is potentially risky.
-  // We can try to update this file to the current HEAD straight from the git files.
-  // These automatically track the current commit, so are more likely to be up to date.
-  // step 1: check if we know where the source files are
-  std::string command = "[ -z \"${WCSIMDIR}\" ]";
-  int gotsourceloc = system(command.c_str());
-  if(not gotsourceloc){
-    std::cerr<<"WARNING: WCSIMDIR environmental variable not defined!"
-             <<" Cannot check CommitHash is up-to-date!"
-             <<" Please export the source files directory to WCSIMDIR"<<std::endl;
-  } else {
-    // step 2: try to see if we have the git repository and update the file if we do
-    //  (it get stripped out before submitting to the grid, so we may not have the git directory)
-    command = "cat ${WCSIMDIR}/.git/$(cat ${WCSIMDIR}/.git/HEAD | awk '{ print $2; }') > " + filepath;
-    int fileupdated = system(command.c_str());
-    // 0 if this worked (i.e. if we could access the file in .git), not 0 otherwise.
-    if(fileupdated==0){
-      std::cout<<"Updated 'CommitHash.txt' based on current HEAD"<<std::endl;
-      // re-read the file with the updated hash
-      fin.open(filepath.c_str());
-      if(fin.is_open()){
-        std::getline(fin,CommitHash);
-        fin.close();
+
+  // This of course relies on us having git and a git repository
+  std::string command = "which git >> /dev/null";
+  int dont_have_git = system(command.c_str());  // returns 0 if we *do* have git
+  if(dont_have_git) return;
+
+  std::cout<<"Attempting to fetch git head commit hash"<<std::endl;
+  // if we have a branch checked out then 'cat ${WCSIMDIR}/.git/HEAD' returns "ref: refs/heads/branchname"
+  // the commit hash is then stored in ${WCSIMDIR}/.git/refs/heads/branchname
+  // if we have a detached head, then 'cat ${WCSIMDIR}/.git/HEAD' returns the commit hash directly.
+  command = std::string("WCSIMDIR='")+std::string(WCSIMDIR)+"' && "
+       " nfields=$(cat ${WCSIMDIR}/.git/HEAD | awk '{ print NF; }'); "
+       " if [ $nfields -eq 2 ]; then "
+       "    cat ${WCSIMDIR}/.git/$(cat ${WCSIMDIR}/.git/HEAD | awk '{ print $NF; }') > CommitHash.txt;"
+       " else "
+       "    cat ${WCSIMDIR}/.git/HEAD > CommitHash.txt;"
+       " fi";
+  int gothash = system(command.c_str());
+  // system call returns 0 if this worked and an error code otherwise.
+  if(gothash==0){
+    std::cout<<"Retrieved HEAD commit hash"<<std::endl;
+    // read it in
+    fin.open("CommitHash.txt");
+    if(fin.is_open()){
+      std::string tempstring="";
+      std::getline(fin,tempstring);
+      if(tempstring!=""){
+        CommitHash=tempstring;
+      } else {
+        std::cerr<<"Git HEAD reported empty string!"<<std::endl;
       }
+      fin.close();
     } else {
-      //std::cerr<<"Update failed"<<std::endl;
+      std::cerr<<"Failed to open tempfile 'CommitHash.txt'"<<std::endl;
     }
+  } else {
+    std::cerr<<"failed to get git commit hash!"<<std::endl;
   }
   
-  // if either method succeeded, we should have a commit hash now:
   if(CommitHash!=""){
     std::cout<<"Current WCSim commit hash is: "<<CommitHash<<std::endl;
   } else {
-    std::cerr<<"Unable to read WCSim commit hash file "<<filepath
-          <<", please ensure the file exists and contains the current commit hash"<<std::endl;
+    std::cerr<<"Unable to read WCSim commit hash\n"
+             <<"Please ensure you built WCSim from a git repository"<<std::endl;
+    //       <<"If working on the grid fetch the minimum code with e.g.\n"
+    //       <<"`git clone --depth 1 --single-branch -b annie https://github.com/ANNIEsoft/WCSim.git`"<<std::endl;
+    // Hmm, this could cause grid jobs to fail if someone got their code as a zip file,
+    // but if you're running on the grid it's probably all the more important your outputs
+    // are properly git tagged. So we will fail.
     assert(false);
   }
   
-  // we could also, for completeness, check if there are any outstanding changes:
-  if(gotsourceloc){
-    command = "which git >> /dev/null";
-    int dont_have_git = system(command.c_str());  // returns 0 if we *do* have git
-    if(dont_have_git) return; // can't do anything more without git
-    //command  = "(cd ${WCSIMDIR}/ && git diff --exit-code > /dev/null )";
-    //int unstaged_changes = system(command.c_str());
-    //command  = "(cd ${WCSIMDIR}/ && git diff --cached --exit-code > /dev/null )";
-    //int staged_changes = system(command.c_str());
-    //command = "(cd ${WCSIMDIR}/ && rm -f gitstatusstring.txt && git status -uno --porcelain > gitstatusstring.txt && [ -s gitstatusstring.txt ] && rm gitstatusstring.txt)";
-    command = "(cd ${WCSIMDIR}/ && rm -f gitstatusstring.txt && git diff HEAD > gitstatusstring.txt && if [ -s gitstatusstring.txt ]; then /bin/false; fi )";
-    int any_changes = system(command.c_str());
-    if(any_changes){
-      std::cerr<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
-      std::cerr<<"WARNING: THERE ARE UNCOMMITTED CHANGES TO THE SOURCE FILES"<<std::endl;
-      std::cerr<<"    WCSimRootOptions::CommitHash WILL NOT BE ACCURATE!"<<std::endl;
-      std::cerr<<"       PLEASE COMMIT YOUR CHANGES AND REBUILD"<<std::endl;
-      std::cerr<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
-    }
+  // we can also warn if there are any outstanding changes, as in this case
+  // the corresponding commit may not be an accurate representation of the code
+  command = std::string("(WCSIMDIR='") + std::string(WCSIMDIR) + "' && "
+            " cd ${WCSIMDIR}/ && rm -f gitstatusstring.txt && "
+            " git diff HEAD > gitstatusstring.txt && "
+            " if [ -s gitstatusstring.txt ]; then /bin/false; fi )";
+  int any_changes = system(command.c_str());
+  if(any_changes){
+    std::cerr<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
+    std::cerr<<"WARNING: THERE ARE UNCOMMITTED CHANGES TO THE SOURCE FILES"<<std::endl;
+    std::cerr<<"    WCSimRootOptions::CommitHash WILL NOT BE ACCURATE!"<<std::endl;
+    std::cerr<<"       PLEASE COMMIT YOUR CHANGES AND REBUILD"<<std::endl;
+    std::cerr<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "<<std::endl;
   }
 }
 
@@ -158,7 +160,16 @@ void WCSimRootOptions::Print(Option_t *) const
     << "\tBsrff: " << Bsrff << endl
     << "\tAbwff: " << Abwff << endl
     << "\tRgcff: " << Rgcff << endl
+    << "\tRgcffR7081: " << RgcffR7081 << endl
     << "\tMieff: " << Mieff << endl
+    << "\tTeflonrff: " << Teflonrff << endl
+    << "\tLinerrff: " << Linerrff << endl
+    << "\tHolderrff: " << Holderrff << endl
+    << "\tHolderrffLUX: " << HolderrffLUX << endl
+    << "\tHolder: " << Holder << endl
+    << "\tQERatio: "<< QERatio << endl
+    << "\tQERatioWB: "<< QERatioWB << endl
+    << "\tPMTWiseQE: " << PMTWiseQE << endl
     << "\tTvspacing: " << Tvspacing << endl
     << "\tTopveto: " << Topveto << endl
     << "Physics List Factory:" << endl

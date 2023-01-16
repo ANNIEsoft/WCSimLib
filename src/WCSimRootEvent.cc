@@ -58,6 +58,10 @@ WCSimRootTrigger::WCSimRootTrigger()
   fNcherenkovdigihits = 0;
   fSumQ = 0;
 
+  //Number of Cherenkov photons
+  fCherenkov = 0;
+  fCherenkovWCSim = 0;
+
   fTriggerType = kTriggerUndefined;
   fTriggerInfo.clear();
   
@@ -102,6 +106,10 @@ void WCSimRootTrigger::Initialize() //actually allocate memory for things in her
   fNcherenkovdigihits = 0;
   fSumQ = 0;
 
+  // Number of Cherenkov photons
+  fCherenkov = 0;
+  fCherenkovWCSim = 0;
+
   // TClonesArray of WCSimRootCaptures
   fCaptures = new TClonesArray("WCSimRootCapture", 100);
   fNcaptures = 0;
@@ -142,6 +150,10 @@ WCSimRootTrigger::~WCSimRootTrigger()
     delete   fCherenkovDigiHits; 
     delete   fCaptures;
   }
+  if (hEventCher){
+    delete hEventCher;
+    hEventCher= nullptr;
+  }
   //mystopw->Stop();
 
   //  std::cout << " Time to delete the TCAs :  Real = " << mystopw->RealTime() 
@@ -168,6 +180,10 @@ void WCSimRootTrigger::Clear(Option_t */*option*/)
   // TClonesArray of WCSimRootCherenkovDigiHits
   fNcherenkovdigihits = 0;
   fSumQ = 0;
+
+  // Cherenkov photons
+  fCherenkov = 0;
+  fCherenkovWCSim = 0;
 
   // TClonesArray of WCSimRootCaptures
   fNcaptures = 0;
@@ -321,7 +337,7 @@ void WCSimRootTrigger::Print(int verbosity, int maxprimariestoprint, int maxtrac
   // loop over primary vertices. Usually just 1. Delayed triggers may report 0, so coerce to 1. 
   for(int primaryi=0; primaryi<std::max(1,std::min(maxprimariestoprint,fNvtxs)); primaryi++){
     std::cout<<"Primary vertex "<<primaryi<<" was at ("
-        <<fVtxs[primaryi][0]<<", "<<fVtxs[primaryi][2]<<", "<<fVtxs[primaryi][2]<<")"<<std::endl;
+        <<fVtxs[primaryi][0]<<", "<<fVtxs[primaryi][1]<<", "<<fVtxs[primaryi][2]<<")"<<std::endl;
   }
   
   //int numphotons = firsttrig->GetCherenkovHits()->GetEntries();  //<< applicable to entire event, not trigger
@@ -562,6 +578,7 @@ void WCSimRootTrigger::SetCaptureParticle(Int_t parent,
     if(ipnu==22) capture->AddGamma(id, energy, dir);
     else capture->SetInfo(vtx, time, ipnu);
 }
+
 
 //_____________________________________________________________________________
 WCSimRootCapture::WCSimRootCapture(Int_t captureParent)
