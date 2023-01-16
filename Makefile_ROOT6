@@ -10,7 +10,8 @@ ROOTLIBS     := $(shell root-config --libs)
 CPPFLAGS  += -Wno-deprecated 
 CPPFLAGS  += -fdiagnostics-color=always -Wno-sign-compare
 CPPFLAGS  += -I$(PWD)/include
-CPPFLAGS  += -I$(ROOTSYS)/include $(ROOTCFLAGS) 
+CPPFLAGS  += -I$(ROOTSYS)/include $(ROOTCFLAGS)
+CPPFLAGS  += -DWCSIMDIR=\"$(WCSIMDIR)\" 
 EXTRALIBS += $(ROOTLIBS)
 
 CXX = g++
